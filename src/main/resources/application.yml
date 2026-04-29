@@ -6,16 +6,18 @@ spring:
     name: agent-console
 
 agent-console:
-  base-dir: ${user.home}/.agent-console
-  ui-store-path: ${user.home}/.agent-console/ui-store
-  agentscope-session-store-path: ${user.home}/.agent-console/agentscope-sessions
+  base-dir: ${user.dir}/.agents
+  ui-store-path: ${user.dir}/.agents/ui-store
+  agentscope-session-store-path: ${user.dir}/.agents/agentscope-sessions
+  skills-path: ${user.dir}/.agents/skills
   default-agent-name: Sunday
   default-system-prompt: You are a helpful assistant.
   model:
-    provider: ollama
+    # dashscope\openai\ollama
+    provider: openai
     name: ${MODEL:qwen3.5:9B-UD-Q4_K_XL}
-    api-key: ${DASHSCOPE_API_KEY:}
-    base-url: http://localhost:11434
+    api-key: ${ZHIPU_API_KEY:not-needed}
+    base-url: ${ZHIPU_BASE_URL:http://localhost:11434/engines/v1}
   memory:
     type: auto-context
     max-context-tokens: 8192

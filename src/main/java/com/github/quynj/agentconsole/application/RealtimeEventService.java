@@ -5,7 +5,6 @@ import com.github.quynj.agentconsole.dto.ChatSessionDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,9 +40,18 @@ public class RealtimeEventService {
         for (SseEmitter emitter : sessionEmitters) {
             try {
                 emitter.send(SseEmitter.event().name(event).data(data));
-            } catch (IOException e) {
-                remove(sessionId, emitter);
+            } catch (Exception e) {
+                removeAndComplete(sessionId, emitter);
             }
+        }
+    }
+
+    private void removeAndComplete(String sessionId, SseEmitter emitter) {
+        remove(sessionId, emitter);
+        try {
+            emitter.complete();
+        } catch (Exception ignored) {
+            // The client may already be gone; removing the stale emitter is enough.
         }
     }
 

@@ -61,14 +61,14 @@ public class ConversationService {
         return session;
     }
 
-    public ChatSessionDTO markDone(String sessionId, AgentMessageDTO message, long durationMs) {
-        ChatSessionDTO session = sessionStore.updateAfterMessage(sessionId, message, durationMs);
+    public ChatSessionDTO markDone(String sessionId, AgentMessageDTO message, long durationMs, int messageCountDelta) {
+        ChatSessionDTO session = sessionStore.updateAfterMessage(sessionId, message, durationMs, messageCountDelta, "done");
         summaryStore.updateAfterSession(session);
         return session;
     }
 
-    public ChatSessionDTO markError(String sessionId) {
-        ChatSessionDTO session = sessionStore.updateStatus(sessionId, "error");
+    public ChatSessionDTO markError(String sessionId, AgentMessageDTO message, long durationMs, int messageCountDelta) {
+        ChatSessionDTO session = sessionStore.updateAfterMessage(sessionId, message, durationMs, messageCountDelta, "error");
         summaryStore.updateAfterSession(session);
         return session;
     }

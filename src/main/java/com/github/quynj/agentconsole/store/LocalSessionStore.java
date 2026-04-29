@@ -117,11 +117,12 @@ public class LocalSessionStore {
         return session;
     }
 
-    public synchronized ChatSessionDTO updateAfterMessage(String sessionId, AgentMessageDTO message, long durationMs) {
+    public synchronized ChatSessionDTO updateAfterMessage(String sessionId, AgentMessageDTO message,
+                                                          long durationMs, int messageCountDelta, String status) {
         Document doc = read();
         ChatSessionDTO session = findMutable(doc, sessionId);
-        session.status = "done";
-        session.messageCount = Math.max(session.messageCount, 0) + 1;
+        session.status = status;
+        session.messageCount = Math.max(session.messageCount, 0) + Math.max(messageCountDelta, 0);
         session.durationMs += durationMs;
         session.lastMessagePreview = preview(message);
         session.updatedAt = LocalDateTime.now();

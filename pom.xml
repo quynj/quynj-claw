@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.8</version>
+        <version>3.5.14</version>
         <relativePath/>
     </parent>
     <groupId>com.github.quynj</groupId>
@@ -13,7 +13,7 @@
     <version>1.0.0</version>
     <name>agent-console</name>
     <properties>
-        <java.version>17</java.version>
+        <java.version>25</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -28,6 +28,11 @@
             <groupId>io.agentscope</groupId>
             <artifactId>agentscope</artifactId>
             <version>1.0.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

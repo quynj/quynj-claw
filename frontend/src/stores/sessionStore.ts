@@ -21,7 +21,10 @@ export const useSessionStore = defineStore('sessions', () => {
 
   async function refreshSummary() {
     if (!activeSessionId.value) return
-    summary.value = await getSummary(activeSessionId.value)
+    const sessionId = activeSessionId.value
+    const loaded = await getSummary(sessionId)
+    if (activeSessionId.value !== sessionId) return
+    summary.value = loaded
   }
 
   async function newSession() {

@@ -10,15 +10,19 @@ export const useRuntimeStore = defineStore('runtime', () => {
   const traces = ref<TraceSpan[]>([])
   const eventSource = ref<EventSource>()
   const lastError = ref('')
+  let openVersion = 0
 
   async function open(sessionId: string) {
     close()
+    const version = ++openVersion
     const messageStore = useMessageStore()
     const sessionStore = useSessionStore()
     await Promise.all([messageStore.load(sessionId), sessionStore.refreshSummary(), refreshTraces(sessionId)])
+    if (version !== openVersion || sessionStore.activeSessionId !== sessionId) return
     eventSource.value = subscribeSessionEvents(sessionId, {
-      'message.created': ({ message }) => messageStore.upsert(message),
+      'message.created': ({ message }) => messageStore.upsert(message, sessionId),
       'session.updated': ({ session }) => {
+        if (sessionStore.activeSessionId !== session.id) return
         sessionStore.replaceSession(session)
         sessionStore.refreshSummary()
       },
@@ -29,10 +33,13 @@ export const useRuntimeStore = defineStore('runtime', () => {
   }
 
   async function refreshTraces(sessionId: string) {
-    traces.value = await listTraces(sessionId)
+    const loaded = await listTraces(sessionId)
+    if (useSessionStore().activeSessionId !== sessionId) return
+    traces.value = loaded
   }
 
   function close() {
+    openVersion += 1
     eventSource.value?.close()
     eventSource.value = undefined
   }

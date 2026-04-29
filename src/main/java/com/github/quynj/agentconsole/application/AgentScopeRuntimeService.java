@@ -38,6 +38,7 @@ public class AgentScopeRuntimeService {
         ChatSessionDTO session = conversationService.get(sessionId);
         AgentMessageDTO userProjection = messageMapper.toUserProjection(sessionId, request);
         messageProjectionService.append(sessionId, userProjection);
+        realtimeEventService.publishMessageCreated(sessionId, userProjection);
         ChatSessionDTO running = conversationService.markRunning(sessionId);
         realtimeEventService.publishSessionUpdated(sessionId, running);
 
@@ -52,14 +53,15 @@ public class AgentScopeRuntimeService {
             AgentMessageDTO assistantProjection =
                     messageMapper.toAssistantProjection(sessionId, session.agentName, assistantMsg);
             messageProjectionService.append(sessionId, assistantProjection);
-            ChatSessionDTO done = conversationService.markDone(sessionId, assistantProjection, durationMs);
+            ChatSessionDTO done = conversationService.markDone(sessionId, assistantProjection, durationMs, 2);
             realtimeEventService.publishMessageCreated(sessionId, assistantProjection);
             realtimeEventService.publishSessionUpdated(sessionId, done);
             return ChatResponse.of(assistantProjection);
         } catch (RuntimeException e) {
+            long durationMs = System.currentTimeMillis() - start;
             AgentMessageDTO error = messageMapper.toErrorProjection(sessionId, e.getMessage());
             messageProjectionService.append(sessionId, error);
-            ChatSessionDTO errored = conversationService.markError(sessionId);
+            ChatSessionDTO errored = conversationService.markError(sessionId, error, durationMs, 2);
             realtimeEventService.publishError(sessionId, "Agent 调用失败", e.getMessage());
             realtimeEventService.publishMessageCreated(sessionId, error);
             realtimeEventService.publishSessionUpdated(sessionId, errored);

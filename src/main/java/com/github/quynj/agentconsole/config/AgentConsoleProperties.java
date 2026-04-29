@@ -9,6 +9,7 @@ public class AgentConsoleProperties {
     public String baseDir;
     public String uiStorePath;
     public String agentscopeSessionStorePath;
+    public String skillsPath;
     public String defaultAgentName = "Sunday";
     public String defaultSystemPrompt = "You are a helpful assistant.";
     public Model model = new Model();
@@ -105,6 +106,14 @@ public class AgentConsoleProperties {
 
     public void setAgentscopeSessionStorePath(String agentscopeSessionStorePath) {
         this.agentscopeSessionStorePath = agentscopeSessionStorePath;
+    }
+
+    public String getSkillsPath() {
+        return skillsPath;
+    }
+
+    public void setSkillsPath(String skillsPath) {
+        this.skillsPath = skillsPath;
     }
 
     public String getDefaultAgentName() {

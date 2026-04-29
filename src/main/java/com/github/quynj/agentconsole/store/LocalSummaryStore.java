@@ -2,7 +2,6 @@ package com.github.quynj.agentconsole.store;
 
 import com.github.quynj.agentconsole.common.JsonFileUtils;
 import com.github.quynj.agentconsole.config.AgentConsoleProperties;
-import com.github.quynj.agentconsole.dto.AgentMessageDTO;
 import com.github.quynj.agentconsole.dto.ChatSessionDTO;
 import com.github.quynj.agentconsole.dto.SessionSummaryDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,18 +70,6 @@ public class LocalSummaryStore {
         summary.completionTokens = session.completionTokens;
         summary.durationMs = session.durationMs;
         summary.updatedAt = session.updatedAt;
-        update(summary);
-    }
-
-    public synchronized void updateAfterMessage(String sessionId, AgentMessageDTO message, long durationMs) {
-        SessionSummaryDTO summary = get(sessionId);
-        if (summary == null) {
-            return;
-        }
-        summary.status = "done";
-        summary.messageCount += 1;
-        summary.durationMs += durationMs;
-        summary.updatedAt = message.createdAt;
         update(summary);
     }
 
