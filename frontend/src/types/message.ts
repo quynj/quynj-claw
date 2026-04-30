@@ -2,6 +2,7 @@ export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
 
 export type ContentBlock =
   | TextBlock
+  | ThinkingBlock
   | ToolUseBlock
   | ToolResultBlock
   | ErrorBlock
@@ -12,6 +13,13 @@ export type ContentBlock =
 export interface TextBlock {
   type: 'text'
   text: string
+  metadata?: Record<string, unknown> | null
+}
+
+export interface ThinkingBlock {
+  type: 'thinking'
+  thinking: string
+  metadata?: Record<string, unknown> | null
 }
 
 export interface ToolUseBlock {
@@ -19,14 +27,18 @@ export interface ToolUseBlock {
   id: string
   name: string
   input: Record<string, unknown>
+  content?: string | null
+  metadata?: Record<string, unknown> | null
 }
 
 export interface ToolResultBlock {
   type: 'tool_result'
   toolUseId: string
+  id?: string
   name: string
   output: unknown
   isError?: boolean
+  metadata?: Record<string, unknown> | null
 }
 
 export interface ErrorBlock {

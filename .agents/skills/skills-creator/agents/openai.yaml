@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skills Creator"
+  short_description: "Create local Agent Console skills"
+  default_prompt: "Use $skills-creator to create or update a project-local Agent Console skill."

@@ -20,7 +20,7 @@ Add a simple frontend smoke test or documented manual QA path for create/send/sw
 
 ## High Priority
 
-- Wire `agent-console.memory.max-context-tokens` into `AgentMemoryFactory` if the official AgentScope Java API supports it.
+- Consider exposing additional AutoContext tuning settings if real sessions show the current defaults are too aggressive or too loose.
 - Recheck AgentScope Java official docs/source for `AutoContextMemory`, `AutoContextConfig`, `JsonSession`, and model builders before changing integration code.
 
 ## AgentScope Integration TODOs
@@ -28,9 +28,9 @@ Add a simple frontend smoke test or documented manual QA path for create/send/sw
 - Confirm whether `new AutoContextMemory(config, model)` is still the recommended AgentScope Java API.
 - Confirm whether `JsonSession` should be constructed with a root path or per-session path.
 - Confirm whether `session.delete(SimpleSessionKey.of(sessionId))` is the official deletion path.
-- Map AgentScope tool use and tool result blocks into `ContentBlockDTO` instead of text-only fallback.
+- Refine provider-specific AgentScope content block mapping as real tool-use payloads are observed.
 - Add real telemetry/trace mapping from AgentScope observability if available.
-- Evaluate stream support in AgentScope Java and add `message.delta` only if supported by the official API.
+- Improve streaming from event-level updates to token/text incremental updates if AgentScope Java exposes suitable deltas.
 
 ## Frontend TODOs
 

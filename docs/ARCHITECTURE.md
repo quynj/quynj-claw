@@ -46,7 +46,9 @@ Base package: `com.github.quynj.agentconsole`
 7. `AgentFactory` registers built-in Java tools into an AgentScope `Toolkit`.
 8. `AgentFactory` loads project-local skills from `.agents/skills` into an AgentScope `SkillBox`.
 9. `AgentSessionStore.loadIfExists(agent, session.agentscopeSessionId)` loads only this AgentScope session.
-10. `agent.call(userMsg).block()` delegates execution to AgentScope Java.
+10. Runtime delegates execution to AgentScope Java:
+    - non-streaming requests use `agent.call(userMsg).block()`.
+    - streaming requests use `agent.stream(userMsg, StreamOptions...)`, publish `message.delta`, and persist completed messages after the stream finishes.
 11. `AgentSessionStore.save(agent, session.agentscopeSessionId)` saves only this AgentScope session.
 12. The AgentScope `Msg` is mapped to an assistant UI projection.
 13. Message/session/summary stores are updated.
@@ -105,8 +107,10 @@ Project-local skills live under:
 
 ```text
 .agents/skills/
+  agent-console-agent/SKILL.md
   conventional-commit/SKILL.md
   nano-memory/SKILL.md
+  skills-creator/SKILL.md
 ```
 
 `AgentFactory.createSkillBox(...)` uses AgentScope `FileSystemSkillRepository` to read this directory and register every skill into a `SkillBox`.
@@ -124,7 +128,13 @@ Registered tool beans:
 - `ListFileTool`
 - `SystemInfoTools`
 
-`AgentFactory.createToolkit(...)` registers these beans with AgentScope `Toolkit.registerTool(...)`.
+Additional AgentScope tools registered by `AgentFactory.createToolkit(...)`:
+
+- `ReadFileTool`, exposing `view_text_file` and `list_directory`
+- `WriteFileTool`, exposing `write_text_file` and `insert_text_file`
+- `ContextOffloadTool`, exposing `context_reload` when the created memory is `AutoContextMemory`
+
+`AgentFactory.createToolkit(...)` registers these beans/tools with AgentScope `Toolkit.registerTool(...)`.
 
 ## Frontend Map
 
@@ -157,7 +167,8 @@ Implemented endpoints:
 SSE event names:
 
 - `message.created`
+- `message.delta`
 - `session.updated`
 - `error`
 
-`message.delta` and `trace.created` are not implemented yet.
+`trace.created` is not implemented yet.

@@ -8,11 +8,15 @@ import java.util.Map;
 public class ContentBlockDTO {
     public String type;
     public String text;
+    public String thinking;
     public String id;
     public String name;
     public Map<String, Object> input;
     public String toolUseId;
     public Object output;
+    public Object source;
+    public String content;
+    public Map<String, Object> metadata;
     public Boolean isError;
     public String message;
     public String detail;

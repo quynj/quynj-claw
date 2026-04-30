@@ -5,7 +5,12 @@
       <span>{{ message.role }}</span>
       <time>{{ new Date(message.createdAt).toLocaleTimeString() }}</time>
     </header>
-    <ContentBlockRenderer v-for="(block, index) in message.content" :key="index" :block="block" />
+    <ContentBlockRenderer
+      v-for="(block, index) in message.content"
+      :key="index"
+      :block="block"
+      :streaming="streaming"
+    />
   </article>
 </template>
 
@@ -13,5 +18,5 @@
 import ContentBlockRenderer from './blocks/ContentBlockRenderer.vue'
 import type { AgentMessage } from '../../types/message'
 
-defineProps<{ message: AgentMessage; active?: boolean }>()
+defineProps<{ message: AgentMessage; active?: boolean; streaming?: boolean }>()
 </script>

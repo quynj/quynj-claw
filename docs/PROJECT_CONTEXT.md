@@ -66,10 +66,14 @@ This repository intentionally contains project-local agent capabilities:
 
 - `.agents/skills/conventional-commit/SKILL.md`
 - `.agents/skills/nano-memory/SKILL.md`
+- `.agents/skills/agent-console-agent/SKILL.md`
+- `.agents/skills/skills-creator/SKILL.md`
 - `src/main/java/com/github/quynj/agentconsole/tool/CalculatorTools.java`
 - `src/main/java/com/github/quynj/agentconsole/tool/DateTimeTools.java`
 - `src/main/java/com/github/quynj/agentconsole/tool/ListFileTool.java`
 - `src/main/java/com/github/quynj/agentconsole/tool/SystemInfoTools.java`
+- AgentScope file tools: `ReadFileTool`, `WriteFileTool`
+- AgentScope AutoContext tool: `ContextOffloadTool` when `AutoContextMemory` is active
 
 Treat these as part of the current project direction, not accidental worktree noise.
 

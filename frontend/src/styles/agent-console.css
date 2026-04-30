@@ -263,6 +263,14 @@ h3 {
   font-weight: 650;
 }
 
+.summary-list {
+  grid-template-columns: minmax(104px, 0.8fr) minmax(0, 1.2fr);
+}
+
+.summary-list dd {
+  line-height: 1.35;
+}
+
 .detail-stack {
   display: flex;
   flex-direction: column;
@@ -271,4 +279,16 @@ h3 {
 
 .tool-block {
   margin-top: 10px;
+}
+
+.thinking-block {
+  margin: 8px 0 12px;
+}
+
+.thinking-block p {
+  margin: 0;
+  color: #526356;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
 }

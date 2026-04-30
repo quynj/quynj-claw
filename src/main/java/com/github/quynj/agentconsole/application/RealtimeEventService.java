@@ -27,6 +27,14 @@ public class RealtimeEventService {
         publish(sessionId, "message.created", Map.of("sessionId", sessionId, "message", message));
     }
 
+    public void publishMessageDelta(String sessionId, AgentMessageDTO message, String eventType, boolean last) {
+        publish(sessionId, "message.delta", Map.of(
+                "sessionId", sessionId,
+                "message", message,
+                "eventType", eventType,
+                "last", last));
+    }
+
     public void publishSessionUpdated(String sessionId, ChatSessionDTO session) {
         publish(sessionId, "session.updated", Map.of("sessionId", sessionId, "session", session));
     }

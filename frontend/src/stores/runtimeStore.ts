@@ -21,6 +21,7 @@ export const useRuntimeStore = defineStore('runtime', () => {
     if (version !== openVersion || sessionStore.activeSessionId !== sessionId) return
     eventSource.value = subscribeSessionEvents(sessionId, {
       'message.created': ({ message }) => messageStore.upsert(message, sessionId),
+      'message.delta': ({ message, last }) => messageStore.mergeDelta(message, Boolean(last), sessionId),
       'session.updated': ({ session }) => {
         if (sessionStore.activeSessionId !== session.id) return
         sessionStore.replaceSession(session)

@@ -8,6 +8,8 @@ import com.github.quynj.agentconsole.tool.ListFileTool;
 import com.github.quynj.agentconsole.tool.SystemInfoTools;
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.memory.Memory;
+import io.agentscope.core.memory.autocontext.AutoContextMemory;
+import io.agentscope.core.memory.autocontext.ContextOffloadTool;
 import io.agentscope.core.model.DashScopeChatModel;
 import io.agentscope.core.model.Model;
 import io.agentscope.core.model.OllamaChatModel;
@@ -49,7 +51,7 @@ public class AgentFactory {
     public ReActAgent createAgent(ChatSessionDTO session) {
         Model model = createModel(session);
         Memory memory = memoryFactory.createMemory(session, model);
-        Toolkit toolkit = createToolkit();
+        Toolkit toolkit = createToolkit(memory);
         SkillBox skillBox = createSkillBox(toolkit);
         /*
          * Session isolation: every request creates a fresh ReActAgent and a fresh Memory instance.
@@ -71,7 +73,7 @@ public class AgentFactory {
         return Paths.get("").toAbsolutePath().toString();
     }
 
-    private Toolkit createToolkit() {
+    private Toolkit createToolkit(Memory memory) {
         Toolkit toolkit = new Toolkit();
         toolkit.registerTool(calculatorTools);
         toolkit.registerTool(dateTimeTools);
@@ -79,6 +81,9 @@ public class AgentFactory {
         toolkit.registerTool(systemInfoTools);
         toolkit.registerTool(new WriteFileTool(getProjectRootPath()));
         toolkit.registerTool(new ReadFileTool(getProjectRootPath()));
+        if (memory instanceof AutoContextMemory autoContextMemory) {
+            toolkit.registerTool(new ContextOffloadTool(autoContextMemory));
+        }
 
         return toolkit;
     }

@@ -21,10 +21,15 @@ public class AgentMemoryFactory {
     }
 
     public Memory createMemory(ChatSessionDTO session, Model model) {
+        if (!"auto-context".equalsIgnoreCase(properties.memory.type)) {
+            return new InMemoryMemory();
+        }
         try {
             AutoContextConfig config = AutoContextConfig.builder()
+                    .maxToken(properties.memory.maxContextTokens)
+                    .msgThreshold(30)
                     .lastKeep(10)
-                    .tokenRatio(0.7)
+                    .tokenRatio(0.3)
                     .build();
             return new AutoContextMemory(config, model);
         } catch (RuntimeException e) {
@@ -32,7 +37,6 @@ public class AgentMemoryFactory {
                 throw e;
             }
             log.warn("AutoContextMemory initialization failed for session {}. Falling back to InMemoryMemory.", session.id, e);
-            // TODO: replace fallback with AgentScope Java AutoContextMemory according to official docs.
             return new InMemoryMemory();
         }
     }

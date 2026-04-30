@@ -159,7 +159,15 @@ public class LocalSessionStore {
         if (message == null || message.content == null || message.content.isEmpty()) {
             return "";
         }
-        String text = message.content.get(0).text != null ? message.content.get(0).text : message.content.get(0).message;
+        String text = message.content.stream()
+                .map(block -> block.text != null ? block.text : block.message)
+                .filter(value -> value != null && !value.isBlank())
+                .findFirst()
+                .orElseGet(() -> message.content.stream()
+                        .map(block -> block.thinking)
+                        .filter(value -> value != null && !value.isBlank())
+                        .findFirst()
+                        .orElse(""));
         if (text == null) {
             return "";
         }

@@ -1,13 +1,13 @@
 # Implementation Status
 
-Last scanned: 2026-04-29.
+Last scanned: 2026-04-30.
 
 ## Current Stack
 
 Backend:
 
-- Spring Boot `3.3.8`
-- Java `17`
+- Spring Boot `3.5.14`
+- Java `25`
 - Maven
 - AgentScope Java dependency `io.agentscope:agentscope:1.0.11`
 - Spring Web
@@ -32,6 +32,7 @@ Passed:
 
 ```bash
 mvn -q -DskipTests compile
+mvn -q test
 cd frontend && bun run build
 ```
 
@@ -57,9 +58,13 @@ Frontend build warning:
 - AgentScope `Toolkit` registration for project built-in Java tool beans.
 - AgentScope `SkillBox` registration for skills loaded from `.agents/skills`.
 - `AutoContextMemory` creation target in `AgentMemoryFactory`.
+- `agent-console.memory.max-context-tokens` is wired into `AutoContextConfig.maxToken`.
+- `ContextOffloadTool` is registered when `AutoContextMemory` is active.
 - `InMemoryMemory` fallback if `AutoContextMemory` creation fails and fallback is enabled.
 - `DashScopeChatModel`, `OpenAIChatModel`, and `OllamaChatModel` provider branches.
 - Basic AgentScope `Msg` mapping for text messages.
+- AgentScope message projection now maps `text`, `thinking`, `tool_use`, `tool_result`, `image`, `audio`, and `video` content blocks when present in raw message content.
+- Streaming chat path uses AgentScope `agent.stream(...)`, publishes `message.delta`, and persists completed stream messages after completion.
 - Error block projection on chat failure.
 
 ## Implemented Frontend Behavior
@@ -76,7 +81,7 @@ Frontend build warning:
   - message list
   - role/name display
   - markdown text rendering
-  - tool/error/raw block components
+  - text/thinking/tool/error/raw block components
   - send input with loading state
 - Right data panel:
   - Summary tab
@@ -94,13 +99,13 @@ server:
 
 agent-console:
   model:
-    provider: ollama
+    provider: openai
     name: ${MODEL:qwen3.5:9B-UD-Q4_K_XL}
-    api-key: ${OPENAI_API_KEY:not-needed}
-    base-url: http://localhost:11434
+    api-key: ${ZHIPU_API_KEY:not-needed}
+    base-url: ${ZHIPU_BASE_URL:http://localhost:11434/engines/v1}
 ```
 
-Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The current code supports DashScope, OpenAI, and Ollama, but defaults to Ollama.
+Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The current code supports DashScope, OpenAI-compatible, and Ollama providers, and `application.yml` currently defaults to the `openai` branch with ZHIPU-style environment variable names.
 
 ## Known Issues And Gaps
 
@@ -110,10 +115,10 @@ Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The 
 - `SummaryService` exists, and runtime summary updates currently mirror `LocalSessionStore` through `ConversationService.markDone(...)` / `markError(...)`.
 - No token accounting is implemented yet; token fields remain zero.
 - Trace integration is a placeholder. Trace endpoints return data from local trace JSON, but AgentScope telemetry spans are not mapped/appended.
-- `message.delta` streaming is not implemented.
-- Tool rendering components exist, but AgentScope tool use/tool result parsing is not implemented in `AgentScopeMessageMapper`.
+- Streaming is implemented as AgentScope event projection with `message.delta`; token-level incremental text streaming is not implemented because runtime uses `incremental(false)`.
+- Tool rendering components and basic `tool_use` / `tool_result` content block mapping are implemented, but provider-specific edge cases may still need refinement.
 - `temperature` is stored on `ChatSessionDTO` but is not currently applied to model creation.
-- `agent-console.memory.max-context-tokens` is configured but not used by `AgentMemoryFactory`; current `AutoContextConfig` uses hardcoded `lastKeep(10)` and `tokenRatio(0.7)`.
+- `AgentMemoryFactory` currently uses fixed AutoContext tuning for `msgThreshold(30)`, `lastKeep(10)`, and `tokenRatio(0.3)` beyond the configurable `max-context-tokens`.
 - API-key error message depends on provider:
   - DashScope branch throws `DASHSCOPE_API_KEY is not configured.`
   - OpenAI branch throws `OPENAI_API_KEY is not configured.`
@@ -122,6 +127,8 @@ Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The 
 - Project-local agent additions are intentional:
   - `.agents/skills/conventional-commit/SKILL.md`
   - `.agents/skills/nano-memory/SKILL.md`
+  - `.agents/skills/agent-console-agent/SKILL.md`
+  - `.agents/skills/skills-creator/SKILL.md`
   - `src/main/java/com/github/quynj/agentconsole/tool/*`
 - Frontend uses Bun as the dependency manager:
   - `frontend/bun.lock` is intentional.

@@ -61,12 +61,14 @@ agent-console:
   agentscope-session-store-path: ${user.dir}/.agents/agentscope-sessions
   skills-path: ${user.dir}/.agents/skills
   default-agent-name: Sunday
-  default-system-prompt: You are a helpful assistant.
+  default-system-prompt: |-
+    # Identity
+    ...
   model:
-    provider: ollama
+    provider: openai
     name: ${MODEL:qwen3.5:9B-UD-Q4_K_XL}
-    api-key: ${OPENAI_API_KEY:not-needed}
-    base-url: http://localhost:11434
+    api-key: ${ZHIPU_API_KEY:not-needed}
+    base-url: ${ZHIPU_BASE_URL:http://localhost:11434/engines/v1}
   memory:
     type: auto-context
     max-context-tokens: 8192
@@ -92,7 +94,9 @@ AutoContextMemory:
 
 - `src/main/java/com/github/quynj/agentconsole/agentscope/AgentMemoryFactory.java`
 - Attempts to create `AutoContextMemory` with `AutoContextConfig` and the selected model.
+- Uses `agent-console.memory.max-context-tokens` as `AutoContextConfig.maxToken`.
 - Falls back to `InMemoryMemory` when initialization fails and fallback is enabled.
+- `AgentFactory` registers `ContextOffloadTool` when the created memory is `AutoContextMemory`.
 
 Agent creation:
 
@@ -170,7 +174,7 @@ src/main/java/com/github/quynj/agentconsole/tool/
 
 ## Known TODOs
 
-Read `docs/TODO_NEXT.md` first. The smallest useful next task is to make the just-sent user message appear immediately in the active chat feed.
+Read `docs/TODO_NEXT.md` first. The current smallest useful next task is a simple frontend smoke test or documented manual QA path for create/send/switch/delete.
 
 ## Project-Local Additions
 
@@ -179,7 +183,7 @@ These are intentional parts of the current project direction:
 - Frontend uses Bun for dependency management and scripts.
 - `frontend/bun.lock` is the expected frontend lockfile.
 - `frontend/package-lock.json` has been removed as part of the Bun workflow.
-- `.agents/skills/conventional-commit/SKILL.md` and `.agents/skills/nano-memory/SKILL.md` are project-local agent skills.
+- `.agents/skills/conventional-commit/SKILL.md`, `.agents/skills/nano-memory/SKILL.md`, `.agents/skills/agent-console-agent/SKILL.md`, and `.agents/skills/skills-creator/SKILL.md` are project-local agent skills.
 - `src/main/java/com/github/quynj/agentconsole/tool/*` contains Agent built-in tool classes.
 - `.agents/ui-store/` and `.agents/agentscope-sessions/` are runtime state and are ignored by git.
 

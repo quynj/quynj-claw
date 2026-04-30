@@ -84,18 +84,20 @@ Consequences:
 - Do not fabricate spans to make the UI look active.
 - Future implementation should map official AgentScope telemetry/tracer output.
 
-## ADR-007: Default Provider Currently Ollama
+## ADR-007: Default Provider Currently OpenAI-Compatible
 
-Decision observed in current code/config: default model provider is `ollama`.
+Decision observed in current code/config: `application.yml` currently uses the `openai` provider branch with an OpenAI-compatible base URL.
 
 Rationale:
 
-- Current `application.yml` is configured for local Ollama and uses `OPENAI_API_KEY:not-needed`.
+- Current `application.yml` is configured with ZHIPU-style environment variable names: `ZHIPU_API_KEY` and `ZHIPU_BASE_URL`.
+- The `openai` branch supports OpenAI-compatible endpoints through `OpenAIChatModel.builder().baseUrl(...)`.
 
 Consequences:
 
-- DashScope API-key behavior exists but is not the default path.
-- Update docs/config carefully if switching back to DashScope.
+- The runtime still supports DashScope, OpenAI-compatible, and Ollama provider branches.
+- The `openai` branch validates that `agent-console.model.api-key` is non-blank, even when the configured default placeholder is `not-needed`.
+- Update docs/config carefully if switching default providers.
 
 ## ADR-008: Runtime State Lives Under Project `.agents`
 
