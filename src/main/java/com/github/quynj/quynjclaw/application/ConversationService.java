@@ -72,4 +72,10 @@ public class ConversationService {
         summaryStore.updateAfterSession(session);
         return session;
     }
+
+    public ChatSessionDTO markStopped(String sessionId, AgentMessageDTO message, long durationMs, int messageCountDelta) {
+        ChatSessionDTO session = sessionStore.updateAfterMessage(sessionId, message, durationMs, messageCountDelta, "stopped");
+        summaryStore.updateAfterSession(session);
+        return session;
+    }
 }

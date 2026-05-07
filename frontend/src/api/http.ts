@@ -5,8 +5,12 @@ export interface ApiResult<T> {
 }
 
 export async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const headers =
+    options.body instanceof FormData
+      ? options.headers
+      : { 'Content-Type': 'application/json', ...(options.headers || {}) }
   const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers,
     ...options
   })
   const body = (await response.json()) as ApiResult<T>

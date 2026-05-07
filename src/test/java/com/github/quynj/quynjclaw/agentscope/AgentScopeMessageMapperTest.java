@@ -1,6 +1,10 @@
 package com.github.quynj.quynjclaw.agentscope;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.quynj.quynjclaw.application.LocalFileService;
+import com.github.quynj.quynjclaw.dto.MessageAttachmentDTO;
+import io.agentscope.core.message.Base64Source;
+import io.agentscope.core.message.ImageBlock;
 import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.MsgRole;
 import io.agentscope.core.message.TextBlock;
@@ -12,9 +16,15 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class AgentScopeMessageMapperTest {
-    private final AgentScopeMessageMapper mapper = new AgentScopeMessageMapper(JsonMapper.builder().build());
+    private final LocalFileService fileService = mock(LocalFileService.class);
+    private final AgentScopeMessageMapper mapper = new AgentScopeMessageMapper(JsonMapper.builder().build(), fileService);
 
     @Test
     void preservesThinkingBlocksAndMetadata() {
@@ -41,5 +51,32 @@ class AgentScopeMessageMapperTest {
         assertEquals("text", projection.content.get(1).type);
         assertEquals("文件已经放到正确目录。", projection.content.get(1).text);
         assertNotNull(projection.metadata.get("_chat_usage"));
+    }
+
+    @Test
+    void mapsImageAttachmentsIntoAgentScopeImageBlocks() {
+        when(fileService.base64Source(eq("sess_1"), any())).thenReturn(Base64Source.builder()
+                .mediaType("image/png")
+                .data("ZmFrZQ==")
+                .build());
+        var attachment = new MessageAttachmentDTO();
+        attachment.id = "file_1";
+        attachment.type = "image";
+        attachment.url = "/api/sessions/sess_1/files/file_1";
+        attachment.fileName = "screen.png";
+        attachment.contentType = "image/png";
+        attachment.size = 4;
+        var request = new com.github.quynj.quynjclaw.dto.SendMessageRequest();
+        request.text = "看这张图";
+        request.attachments = List.of(attachment);
+
+        Msg msg = mapper.toUserMsg("sess_1", request);
+        var projection = mapper.toUserProjection("sess_1", request);
+
+        assertTrue(msg.hasContentBlocks(TextBlock.class));
+        assertTrue(msg.hasContentBlocks(ImageBlock.class));
+        assertEquals(2, projection.content.size());
+        assertEquals("image", projection.content.get(1).type);
+        assertEquals("/api/sessions/sess_1/files/file_1", projection.content.get(1).url);
     }
 }

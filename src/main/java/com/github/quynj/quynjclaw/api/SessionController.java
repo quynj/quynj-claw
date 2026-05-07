@@ -2,6 +2,7 @@ package com.github.quynj.quynjclaw.api;
 
 import com.github.quynj.quynjclaw.agentscope.AgentSessionStore;
 import com.github.quynj.quynjclaw.application.ConversationService;
+import com.github.quynj.quynjclaw.application.LocalFileService;
 import com.github.quynj.quynjclaw.application.SummaryService;
 import com.github.quynj.quynjclaw.common.PageResult;
 import com.github.quynj.quynjclaw.common.Result;
@@ -18,12 +19,14 @@ public class SessionController {
     private final ConversationService conversationService;
     private final SummaryService summaryService;
     private final AgentSessionStore agentSessionStore;
+    private final LocalFileService fileService;
 
     public SessionController(ConversationService conversationService, SummaryService summaryService,
-                             AgentSessionStore agentSessionStore) {
+                             AgentSessionStore agentSessionStore, LocalFileService fileService) {
         this.conversationService = conversationService;
         this.summaryService = summaryService;
         this.agentSessionStore = agentSessionStore;
+        this.fileService = fileService;
     }
 
     @GetMapping
@@ -55,6 +58,7 @@ public class SessionController {
         ChatSessionDTO session = conversationService.get(sessionId);
         conversationService.delete(sessionId);
         agentSessionStore.delete(session.agentscopeSessionId);
+        fileService.deleteSessionFiles(sessionId);
         return Result.ok(null);
     }
 

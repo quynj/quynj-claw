@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { listMessages, sendMessage } from '../api/message'
+import { cancelCurrentMessage, listMessages, sendMessage } from '../api/message'
 import { useSessionStore } from './sessionStore'
-import type { AgentMessage } from '../types/message'
+import type { AgentMessage, MessageAttachment } from '../types/message'
 
 export const useMessageStore = defineStore('messages', () => {
   const messages = ref<AgentMessage[]>([])
   const selectedMessage = ref<AgentMessage>()
   const streamingIds = ref<string[]>([])
   const sending = ref(false)
+  const cancelling = ref(false)
 
   async function load(sessionId: string) {
     const loaded = await listMessages(sessionId)
@@ -18,14 +19,23 @@ export const useMessageStore = defineStore('messages', () => {
     selectedMessage.value = undefined
   }
 
-  async function send(sessionId: string, text: string) {
+  async function send(sessionId: string, text: string, attachments: MessageAttachment[] = []) {
+    if (sending.value) return
     sending.value = true
+    cancelling.value = false
     try {
-      const response = await sendMessage(sessionId, text, true)
+      const response = await sendMessage(sessionId, text, attachments, true)
       upsert(response.message, sessionId)
     } finally {
       sending.value = false
+      cancelling.value = false
     }
+  }
+
+  async function cancelSend(sessionId: string) {
+    if (!sending.value || cancelling.value) return
+    cancelling.value = true
+    await cancelCurrentMessage(sessionId)
   }
 
   function upsert(message: AgentMessage, expectedSessionId?: string) {
@@ -86,5 +96,18 @@ export const useMessageStore = defineStore('messages', () => {
     return block.type
   }
 
-  return { messages, selectedMessage, streamingIds, sending, load, send, upsert, mergeDelta, select, isStreaming }
+  return {
+    messages,
+    selectedMessage,
+    streamingIds,
+    sending,
+    cancelling,
+    load,
+    send,
+    cancelSend,
+    upsert,
+    mergeDelta,
+    select,
+    isStreaming
+  }
 })

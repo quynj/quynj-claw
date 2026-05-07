@@ -51,6 +51,7 @@ export interface ImageBlock {
   type: 'image'
   url: string
   alt?: string
+  source?: unknown
 }
 
 export interface AudioBlock {
@@ -72,4 +73,14 @@ export interface AgentMessage {
   metadata?: Record<string, unknown>
   rawMsg?: unknown
   createdAt: string
+}
+
+export interface MessageAttachment {
+  id: string
+  sessionId?: string
+  type: 'image'
+  fileName: string
+  contentType: string
+  size: number
+  url: string
 }

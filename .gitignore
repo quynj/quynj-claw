@@ -5,6 +5,7 @@ frontend/*.tsbuildinfo
 frontend/src/**/*.js
 .agents/ui-store/
 .agents/agentscope-sessions/
+.agents/files/
 .agents/memory/
 .DS_Store
 .idea

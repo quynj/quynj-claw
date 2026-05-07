@@ -4,6 +4,7 @@
   <ErrorBlock v-else-if="block.type === 'error'" :block="block" />
   <ToolUseBlock v-else-if="block.type === 'tool_use'" :block="block" />
   <ToolResultBlock v-else-if="block.type === 'tool_result'" :block="block" />
+  <ImageBlock v-else-if="block.type === 'image'" :block="block" />
   <RawJsonViewer v-else :value="block" />
 </template>
 
@@ -11,6 +12,7 @@
 import TextBlock from './TextBlock.vue'
 import ThinkingBlock from './ThinkingBlock.vue'
 import ErrorBlock from './ErrorBlock.vue'
+import ImageBlock from './ImageBlock.vue'
 import ToolUseBlock from './ToolUseBlock.vue'
 import ToolResultBlock from './ToolResultBlock.vue'
 import RawJsonViewer from './RawJsonViewer.vue'

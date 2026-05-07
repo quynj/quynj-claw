@@ -1,14 +1,19 @@
 package com.github.quynj.quynjclaw.agentscope;
 
+import com.github.quynj.quynjclaw.application.LocalFileService;
 import com.github.quynj.quynjclaw.common.IdGenerator;
 import com.github.quynj.quynjclaw.dto.AgentMessageDTO;
 import com.github.quynj.quynjclaw.dto.ContentBlockDTO;
+import com.github.quynj.quynjclaw.dto.MessageAttachmentDTO;
 import com.github.quynj.quynjclaw.dto.SendMessageRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.agentscope.core.message.ContentBlock;
+import io.agentscope.core.message.ImageBlock;
 import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.MsgRole;
+import io.agentscope.core.message.TextBlock;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -22,22 +27,47 @@ import java.util.Objects;
 @Component
 public class AgentScopeMessageMapper {
     private final ObjectMapper mapper;
+    private final LocalFileService fileService;
 
-    public AgentScopeMessageMapper(ObjectMapper mapper) {
+    public AgentScopeMessageMapper(ObjectMapper mapper, LocalFileService fileService) {
         this.mapper = mapper;
+        this.fileService = fileService;
     }
 
-    public Msg toUserMsg(SendMessageRequest request) {
+    public Msg toUserMsg(String sessionId, SendMessageRequest request) {
+        List<ContentBlock> blocks = new ArrayList<>();
+        if (request.text != null && !request.text.isBlank()) {
+            blocks.add(TextBlock.builder().text(request.text).build());
+        }
+        for (MessageAttachmentDTO attachment : safeAttachments(request)) {
+            requireImageAttachment(attachment);
+            blocks.add(ImageBlock.builder()
+                    .source(fileService.base64Source(sessionId, attachment))
+                    .build());
+        }
         return Msg.builder()
                 .name("user")
                 .role(MsgRole.USER)
-                .textContent(request.text)
+                .content(blocks)
                 .build();
     }
 
     public AgentMessageDTO toUserProjection(String sessionId, SendMessageRequest request) {
         AgentMessageDTO message = base(sessionId, "user", "user");
-        message.content = List.of(ContentBlockDTO.text(request.text));
+        List<ContentBlockDTO> blocks = new ArrayList<>();
+        if (request.text != null && !request.text.isBlank()) {
+            blocks.add(ContentBlockDTO.text(request.text));
+        }
+        for (MessageAttachmentDTO attachment : safeAttachments(request)) {
+            requireImageAttachment(attachment);
+            Map<String, Object> source = new LinkedHashMap<>();
+            source.put("id", attachment.id);
+            source.put("contentType", attachment.contentType);
+            source.put("fileName", attachment.fileName);
+            source.put("size", attachment.size);
+            blocks.add(ContentBlockDTO.image(attachment.url, attachment.fileName, source));
+        }
+        message.content = blocks;
         return message;
     }
 
@@ -66,6 +96,22 @@ public class AgentScopeMessageMapper {
     public AgentMessageDTO toErrorProjection(String sessionId, String detail) {
         AgentMessageDTO message = base(sessionId, "system", "system");
         message.content = List.of(ContentBlockDTO.error("Agent 调用失败", detail));
+        return message;
+    }
+
+    public AgentMessageDTO toCancelledProjection(String sessionId, String agentName, AgentMessageDTO partial) {
+        AgentMessageDTO message = partial == null ? base(sessionId, agentName, "assistant") : partial;
+        message.sessionId = sessionId;
+        message.name = message.name == null || message.name.isBlank() ? agentName : message.name;
+        message.role = "assistant";
+        if (message.content == null || message.content.isEmpty() || onlyBlankText(message.content)) {
+            message.content = List.of(ContentBlockDTO.text("回复已取消。"));
+        }
+        if (message.metadata == null) {
+            message.metadata = new LinkedHashMap<>();
+        }
+        message.metadata.put("status", "cancelled");
+        message.metadata.put("incomplete", true);
         return message;
     }
 
@@ -181,6 +227,28 @@ public class AgentScopeMessageMapper {
             return null;
         }
         return mapper.convertValue(node, Object.class);
+    }
+
+    private List<MessageAttachmentDTO> safeAttachments(SendMessageRequest request) {
+        return request.attachments == null ? List.of() : request.attachments;
+    }
+
+    private void requireImageAttachment(MessageAttachmentDTO attachment) {
+        if (attachment == null || attachment.type == null || !"image".equals(attachment.type)) {
+            throw new IllegalArgumentException("Only image attachments are supported.");
+        }
+    }
+
+    private boolean onlyBlankText(List<ContentBlockDTO> blocks) {
+        return blocks.stream().allMatch(block -> {
+            if (block == null) {
+                return true;
+            }
+            if ("text".equals(block.type)) {
+                return block.text == null || block.text.isBlank();
+            }
+            return false;
+        });
     }
 
     private String sourceUrl(JsonNode source) {

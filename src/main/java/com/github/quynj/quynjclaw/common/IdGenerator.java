@@ -23,6 +23,10 @@ public final class IdGenerator {
         return "trace_" + TS.format(LocalDateTime.now()) + "_" + shortRandom();
     }
 
+    public static String fileId() {
+        return "file_" + TS.format(LocalDateTime.now()) + "_" + shortRandom();
+    }
+
     private static String shortRandom() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     }

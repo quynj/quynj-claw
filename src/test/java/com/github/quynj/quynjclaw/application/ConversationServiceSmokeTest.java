@@ -14,6 +14,7 @@ import com.github.quynj.quynjclaw.store.LocalTraceStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +29,7 @@ class ConversationServiceSmokeTest {
     Path tempDir;
 
     private ConversationService conversationService;
+    private LocalFileService fileService;
     private LocalMessageStore messageStore;
     private LocalSummaryStore summaryStore;
     private Path uiStorePath;
@@ -36,6 +38,7 @@ class ConversationServiceSmokeTest {
     void setUp() throws Exception {
         uiStorePath = tempDir.resolve("ui-store");
         QuynjClawProperties properties = new QuynjClawProperties();
+        properties.baseDir = tempDir.resolve(".agents").toString();
         properties.uiStorePath = uiStorePath.toString();
         properties.defaultAgentName = "Sunday";
         properties.defaultSystemPrompt = "You are a helpful assistant.";
@@ -55,6 +58,7 @@ class ConversationServiceSmokeTest {
         summaryStore.init();
         traceStore.init();
         conversationService = new ConversationService(sessionStore, messageStore, summaryStore, traceStore);
+        fileService = new LocalFileService(properties, conversationService);
     }
 
     @Test
@@ -94,6 +98,23 @@ class ConversationServiceSmokeTest {
         assertEquals("Agent failed", errored.lastMessagePreview);
         assertEquals(2, summaryStore.get(session.id).messageCount);
         assertTrue(Files.exists(uiStorePath.resolve("messages").resolve(session.id + ".json")));
+    }
+
+    @Test
+    void imageUploadUsesSessionScopedFilesDirectory() {
+        var session = conversationService.create(new SessionCreateRequest());
+        var file = new MockMultipartFile("file", "screen.png", "image/png", new byte[] {1, 2, 3});
+
+        var attachment = fileService.saveImage(session.id, file);
+
+        assertEquals("image", attachment.type);
+        assertEquals("/api/sessions/" + session.id + "/files/" + attachment.id, attachment.url);
+        assertTrue(Files.exists(tempDir.resolve(".agents").resolve("files").resolve(session.id)));
+        assertTrue(Files.exists(fileService.imagePath(session.id, attachment.id)));
+
+        fileService.deleteSessionFiles(session.id);
+
+        assertFalse(Files.exists(tempDir.resolve(".agents").resolve("files").resolve(session.id)));
     }
 
     private AgentMessageDTO message(String sessionId, String role, String text) {

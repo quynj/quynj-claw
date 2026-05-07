@@ -38,6 +38,15 @@ public class ContentBlockDTO {
         return block;
     }
 
+    public static ContentBlockDTO image(String url, String alt, Object source) {
+        ContentBlockDTO block = new ContentBlockDTO();
+        block.type = "image";
+        block.url = url;
+        block.alt = alt;
+        block.source = source;
+        return block;
+    }
+
     public Map<String, Object> inputOrEmpty() {
         if (input == null) {
             input = new LinkedHashMap<>();

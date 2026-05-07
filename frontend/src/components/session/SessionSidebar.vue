@@ -2,7 +2,6 @@
   <aside class="session-sidebar">
     <div class="sidebar-top">
       <div>
-        <p class="eyebrow">AgentScope</p>
         <h1>Quynj Claw</h1>
       </div>
       <el-button :icon="Plus" circle @click="sessionStore.newSession" />
