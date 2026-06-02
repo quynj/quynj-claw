@@ -57,8 +57,15 @@ Route:
 Layout:
 
 - Left: session CRUD sidebar.
-- Center: chatbot runtime.
+- Center: chatbot runtime with polished message cards, avatars, `You`/agent display names, timestamps, and an input toolbar.
 - Right: Summary / Message / Trace data panel.
+
+Current chat presentation details:
+
+- Raw message roles/types are hidden in the feed; they remain available through data/debug surfaces.
+- User messages display as `You`.
+- Assistant messages display the configured agent name.
+- Chat avatars are frontend-only presentation state backed by static assets and browser `localStorage`.
 
 ## Project-Local Agent Extensions
 

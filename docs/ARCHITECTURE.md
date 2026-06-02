@@ -141,11 +141,17 @@ Additional AgentScope tools registered by `AgentFactory.createToolkit(...)`:
 - `frontend/src/views/QuynjClawView.vue`: three-column shell.
 - `frontend/src/components/session`: session sidebar and items.
 - `frontend/src/components/chat`: chat feed, input, message cards, content block renderers.
+- `frontend/src/components/chat/MessageCard.vue`: role-aware presentation for message cards. It displays `You` for user messages, the configured agent name for assistant messages, and hides raw role/type labels from the chat feed.
+- `frontend/src/components/chat/ChatInputBox.vue`: message composer with image attachments, voice input when supported, send/cancel controls, and a More menu for local UI actions.
+- `frontend/src/composables/useChatAvatars.ts`: client-only avatar selection state. It references static avatar assets, randomizes the user/agent avatar pair, and persists the choice in `localStorage`.
+- `frontend/src/assets/avatars`: committed static SVG avatars used by the chat feed.
 - `frontend/src/components/data-view`: Summary / Message / Trace tabs.
 - `frontend/src/stores/sessionStore.ts`: session list, active session, summary.
 - `frontend/src/stores/messageStore.ts`: messages and send state.
 - `frontend/src/stores/runtimeStore.ts`: SSE lifecycle and trace loading.
 - `frontend/src/api`: REST and SSE clients.
+
+Avatar state is intentionally not part of backend DTOs, UI JSON projection files, or AgentScope session state. It is local presentation state only.
 
 ## API Surface
 

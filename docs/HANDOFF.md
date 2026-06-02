@@ -44,6 +44,14 @@ bun run build
 
 Both passed during this handoff.
 
+Latest frontend-only verification:
+
+```bash
+cd frontend && bun run build
+```
+
+This passed on 2026-06-02 after the chat UI and avatar menu updates. Vite still reports the known large chunk warning; it is not a build failure.
+
 ## Required Configuration
 
 Main config file:
@@ -174,7 +182,16 @@ src/main/java/com/github/quynj/quynjclaw/tool/
 
 ## Known TODOs
 
-Read `docs/TODO_NEXT.md` first. The current smallest useful next task is a simple frontend smoke test or documented manual QA path for create/send/switch/delete.
+Read `docs/TODO_NEXT.md` first. The current smallest useful next task is a simple frontend smoke test or documented manual QA path for create/send/switch/delete and the chat input controls.
+
+## Chat UI Notes
+
+- The center chat feed now uses committed SVG avatars from `frontend/src/assets/avatars`.
+- `frontend/src/composables/useChatAvatars.ts` owns the local avatar state and persists it in browser `localStorage`.
+- User messages should display as `You`; assistant messages should display the configured agent name.
+- Do not show raw role/type labels such as `user` or `assistant` in the chat feed.
+- The input toolbar More menu currently has one action, `随机头像`, and is intended as the extension point for future local chat UI actions.
+- These avatar and menu choices are frontend presentation state only. Do not feed them into AgentScope runtime state or backend UI JSON unless the product deliberately changes that boundary.
 
 ## Project-Local Additions
 
@@ -183,6 +200,7 @@ These are intentional parts of the current project direction:
 - Frontend uses Bun for dependency management and scripts.
 - `frontend/bun.lock` is the expected frontend lockfile.
 - `frontend/package-lock.json` has been removed as part of the Bun workflow.
+- `frontend/src/assets/avatars/*` contains committed static chat avatar assets.
 - `.agents/skills/conventional-commit/SKILL.md`, `.agents/skills/nano-memory/SKILL.md`, `.agents/skills/quynj-claw-agent/SKILL.md`, and `.agents/skills/skills-creator/SKILL.md` are project-local agent skills.
 - `src/main/java/com/github/quynj/quynjclaw/tool/*` contains Agent built-in tool classes.
 - `.agents/ui-store/` and `.agents/agentscope-sessions/` are runtime state and are ignored by git.

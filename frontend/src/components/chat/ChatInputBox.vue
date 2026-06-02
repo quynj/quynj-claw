@@ -61,6 +61,24 @@
             @click="toggleVoice"
           />
         </el-tooltip>
+        <div class="avatar-menu-wrapper">
+          <el-tooltip content="更多">
+            <el-button
+              :icon="MoreHorizontal"
+              circle
+              plain
+              :disabled="disabled"
+              native-type="button"
+              @click.stop="avatarMenuOpen = !avatarMenuOpen"
+            />
+          </el-tooltip>
+          <div v-if="avatarMenuOpen" class="avatar-menu">
+            <button type="button" @click="chooseRandomBothAvatars">
+              <Shuffle :size="16" />
+              <span>随机头像</span>
+            </button>
+          </div>
+        </div>
       </div>
       <span v-if="inputStatusLabel" class="input-status" :class="status">{{ inputStatusLabel }}</span>
       <span v-else />
@@ -132,8 +150,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Mic, Paperclip, SendHorizontal, Square, X } from 'lucide-vue-next'
+import { Mic, MoreHorizontal, Paperclip, SendHorizontal, Shuffle, Square, X } from 'lucide-vue-next'
 import { uploadImage } from '../../api/message'
+import { useChatAvatars } from '../../composables/useChatAvatars'
 import type { MessageAttachment } from '../../types/message'
 
 const props = defineProps<{
@@ -149,10 +168,12 @@ const attachments = ref<MessageAttachment[]>([])
 const uploading = ref(false)
 const dragging = ref(false)
 const listening = ref(false)
+const avatarMenuOpen = ref(false)
 const fileInputRef = ref<HTMLInputElement>()
 const previewOpen = ref(false)
 const previewIndex = ref(0)
 const previewRef = ref<HTMLElement>()
+const { agentAvatarUrl, randomizeBothAvatars } = useChatAvatars()
 const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
 let recognition: BrowserSpeechRecognition | undefined
 const busy = computed(() => props.loading || props.cancelling || uploading.value)
@@ -178,6 +199,11 @@ function submit() {
   emit('send', value, [...attachments.value])
   text.value = ''
   attachments.value = []
+}
+
+function chooseRandomBothAvatars() {
+  randomizeBothAvatars()
+  avatarMenuOpen.value = false
 }
 
 async function addFiles(files: FileList | File[]) {

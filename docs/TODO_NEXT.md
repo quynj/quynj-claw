@@ -4,6 +4,14 @@ This list is ordered by smallest useful next step first.
 
 ## Recently Completed
 
+- Center chat UI refresh.
+  - The grid-line background was replaced with a softer layered surface.
+  - Message cards now show avatar, display name, and timestamp.
+  - User messages display as `You`; assistant messages use the configured agent name.
+  - Message role/type labels such as `user` and `assistant` are no longer shown in the feed.
+  - Ten static SVG avatars were added under `frontend/src/assets/avatars`.
+  - The input toolbar More menu currently exposes one action: `随机头像`, which randomizes the user and agent avatars together.
+  - Avatar UI selection is client-only state persisted in `localStorage`.
 - Message projection freshness in the current chat view is fixed.
   - Backend publishes `message.created` for the saved user projection immediately after append.
   - Frontend still upserts returned assistant messages and SSE messages by ID, so duplicate assistant inserts are avoided.
@@ -16,7 +24,11 @@ This list is ordered by smallest useful next step first.
 
 ## Next Smallest Task
 
-Add a simple frontend smoke test or documented manual QA path for create/send/switch/delete.
+Add a simple frontend smoke test or documented manual QA path for create/send/switch/delete plus the chat UI controls:
+
+- Verify the input toolbar button spacing remains visually uniform.
+- Verify the More menu opens and `随机头像` updates both visible avatars.
+- Verify the avatar choice survives a browser refresh through `localStorage`.
 
 ## High Priority
 
@@ -34,6 +46,12 @@ Add a simple frontend smoke test or documented manual QA path for create/send/sw
 
 ## Frontend TODOs
 
+- Expand the input toolbar More menu only with actions that fit the chat workflow, for example:
+  - clear local avatar preference
+  - toggle compact message density
+  - toggle timestamps or rich metadata
+  - export/copy current session projection
+- Add an explicit visual QA checklist for desktop widths because the app currently assumes a `min-width` desktop console layout.
 - Show runtime errors from `runtimeStore.lastError` in the chat view.
 - Improve empty/error/loading states for Summary and Trace tabs.
 - Consider route setup if future navigation grows beyond the single `QuynjClawView`.

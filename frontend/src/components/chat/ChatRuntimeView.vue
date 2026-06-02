@@ -12,10 +12,13 @@
       <MessageCard
         v-for="message in messageStore.messages"
         :key="message.id"
+        :agent-avatar-url="agentAvatarUrl"
+        :agent-name="sessionStore.activeSession?.agentName"
         :message="message"
         :streaming="messageStore.isStreaming(message.id)"
         :generating="message.id === generatingMessageId"
         :active="message.id === messageStore.selectedMessage?.id"
+        :user-avatar-url="userAvatarUrl"
         @click="messageStore.select(message)"
       />
       <div v-if="showPendingGeneration" class="pending-generation">
@@ -43,10 +46,12 @@ import ChatInputBox from './ChatInputBox.vue'
 import MessageCard from './MessageCard.vue'
 import { useMessageStore } from '../../stores/messageStore'
 import { useSessionStore } from '../../stores/sessionStore'
+import { useChatAvatars } from '../../composables/useChatAvatars'
 import type { MessageAttachment } from '../../types/message'
 
 const sessionStore = useSessionStore()
 const messageStore = useMessageStore()
+const { agentAvatarUrl, userAvatarUrl } = useChatAvatars()
 const feedRef = ref<HTMLElement>()
 const generatingMessageId = computed(() =>
   [...messageStore.messages]

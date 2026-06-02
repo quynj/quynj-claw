@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Avatar 4">
+  <rect width="96" height="96" rx="24" fill="#d6c3f0"/>
+  <circle cx="24" cy="74" r="26" fill="#ffbf66"/>
+  <circle cx="75" cy="22" r="24" fill="#3e7b6c"/>
+  <circle cx="48" cy="47" r="25" fill="#33241f"/>
+  <circle cx="48" cy="50" r="20" fill="#f4c2a1"/>
+  <path d="M26 44c5-17 17-25 35-24 8 8 11 17 9 29-14-8-29-9-44-5Z" fill="#5d3326"/>
+  <circle cx="39" cy="53" r="3" fill="#17201b"/>
+  <circle cx="57" cy="53" r="3" fill="#17201b"/>
+  <path d="M42 65h13" stroke="#17201b" stroke-width="4" stroke-linecap="round"/>
+</svg>

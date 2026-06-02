@@ -1,6 +1,6 @@
 # Implementation Status
 
-Last scanned: 2026-04-30.
+Last scanned: 2026-06-02.
 
 ## Current Stack
 
@@ -39,6 +39,7 @@ cd frontend && bun run build
 Frontend build warning:
 
 - Vite reports one chunk above 500 kB after minification. This is not a build failure.
+- The latest frontend-only verification was `cd frontend && bun run build` on 2026-06-02 after the chat UI refresh.
 
 ## Implemented Backend Behavior
 
@@ -79,10 +80,17 @@ Frontend build warning:
   - status and preview rendering through `SessionItem`
 - Center chat:
   - message list
-  - role/name display
+  - polished message cards with avatar, display name, and timestamp metadata
+  - user messages display as `You`; assistant messages display the configured agent name
+  - message role/type labels such as `user` and `assistant` are intentionally hidden from the chat feed
   - markdown text rendering
   - text/thinking/tool/error/raw block components
   - send input with loading state
+  - image attachment upload, paste/drop handling, and preview modal
+  - voice input button when browser speech recognition is available
+  - More menu in the input toolbar with a `随机头像` action
+  - project-local static avatar assets under `frontend/src/assets/avatars`
+  - avatar selection state is client-only UI state persisted in `localStorage`
 - Right data panel:
   - Summary tab
   - Message detail tab
@@ -114,6 +122,7 @@ Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The 
 - Backend publishes `message.created` for saved user projections, and the frontend guards stale session loads/responses/events during quick session switching.
 - `SummaryService` exists, and runtime summary updates currently mirror `LocalSessionStore` through `ConversationService.markDone(...)` / `markError(...)`.
 - No token accounting is implemented yet; token fields remain zero.
+- Chat avatars are frontend-only presentation state. They are not persisted in backend UI JSON and are not part of AgentScope inference state.
 - Trace integration is a placeholder. Trace endpoints return data from local trace JSON, but AgentScope telemetry spans are not mapped/appended.
 - Streaming is implemented as AgentScope event projection with `message.delta`; token-level incremental text streaming is not implemented because runtime uses `incremental(false)`.
 - Tool rendering components and basic `tool_use` / `tool_result` content block mapping are implemented, but provider-specific edge cases may still need refinement.
@@ -133,6 +142,7 @@ Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The 
 - Frontend uses Bun as the dependency manager:
   - `frontend/bun.lock` is intentional.
   - `frontend/package-lock.json` deletion is consistent with moving away from npm lockfiles.
+- The latest chat UI polish added SVG avatars directly in source. If future work replaces them with generated bitmap avatars, keep final project-consumed assets in `frontend/src/assets` or another committed frontend asset path, not only in a temporary image-generation directory.
 
 ## Current Runtime Paths
 
