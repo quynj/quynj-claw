@@ -2,6 +2,7 @@ package com.github.quynj.quynjclaw.application;
 
 import com.github.quynj.quynjclaw.dto.AgentMessageDTO;
 import com.github.quynj.quynjclaw.dto.ChatSessionDTO;
+import com.github.quynj.quynjclaw.dto.TraceSpanDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -37,6 +38,14 @@ public class RealtimeEventService {
 
     public void publishSessionUpdated(String sessionId, ChatSessionDTO session) {
         publish(sessionId, "session.updated", Map.of("sessionId", sessionId, "session", session));
+    }
+
+    public void publishTraceCreated(String sessionId, TraceSpanDTO span) {
+        publish(sessionId, "trace.created", Map.of("sessionId", sessionId, "trace", span));
+    }
+
+    public void publishTraceUpdated(String sessionId, TraceSpanDTO span) {
+        publish(sessionId, "trace.updated", Map.of("sessionId", sessionId, "trace", span));
     }
 
     public void publishError(String sessionId, String message, String detail) {

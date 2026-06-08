@@ -41,7 +41,7 @@ Add a simple frontend smoke test or documented manual QA path for create/send/sw
 - Confirm whether `JsonSession` should be constructed with a root path or per-session path.
 - Confirm whether `session.delete(SimpleSessionKey.of(sessionId))` is the official deletion path.
 - Refine provider-specific AgentScope content block mapping as real tool-use payloads are observed.
-- Add real telemetry/trace mapping from AgentScope observability if available.
+- Add real AgentScope telemetry/OpenTelemetry span mapping when the official Java observability API is confirmed. Current Trace records console-level runtime spans only.
 - Improve streaming from event-level updates to token/text incremental updates if AgentScope Java exposes suitable deltas.
 
 ## Frontend TODOs

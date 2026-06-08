@@ -54,8 +54,8 @@ quynj-claw:
     # dashscope\openai\ollama
     provider: openai
     name: ${MODEL:qwen3.5:9B-UD-Q4_K_XL}
-    api-key: ${ZHIPU_API_KEY:not-needed}
-    base-url: ${ZHIPU_BASE_URL:http://localhost:11434/engines/v1}
+    api-key: ${OPENAI_API_KEY:not-needed}
+    base-url: ${OPENAI_BASE_URL:http://localhost:11434/engines/v1}
   memory:
     type: auto-context
     max-context-tokens: 8192

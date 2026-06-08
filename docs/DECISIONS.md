@@ -71,17 +71,18 @@ Consequences:
 - Session ID validation remains important before calling `JsonSession`.
 - If future migrations need different IDs, preserve backward compatibility in `ChatSessionDTO.agentscopeSessionId`.
 
-## ADR-006: Trace Is A Placeholder In V1
+## ADR-006: Trace Starts As Console-Level Runtime Spans
 
-Decision: create trace JSON documents and endpoints now, but leave items empty until real AgentScope telemetry mapping is implemented.
+Decision: trace JSON documents and endpoints exist now, and the app records console-level runtime spans for actual chat lifecycle steps. Official AgentScope telemetry spans are still reserved for a future mapping layer.
 
 Rationale:
 
-- The UI can stabilize around the Trace tab without inventing a fake tracing model.
+- The UI can stabilize around the Trace tab with real observable events from this console.
+- The app should not fabricate internal AgentScope spans before the official Java observability API is wired in.
 
 Consequences:
 
-- Do not fabricate spans to make the UI look active.
+- Console spans may be coarser than AgentScope Studio/OpenTelemetry spans.
 - Future implementation should map official AgentScope telemetry/tracer output.
 
 ## ADR-007: Default Provider Currently OpenAI-Compatible

@@ -58,6 +58,19 @@ public class LocalTraceStore {
         json.writeAtomic(path(sessionId), doc);
     }
 
+    public synchronized void update(String sessionId, TraceSpanDTO span) {
+        Document doc = read(sessionId);
+        for (int i = 0; i < doc.items.size(); i += 1) {
+            if (Objects.equals(doc.items.get(i).id, span.id)) {
+                doc.items.set(i, span);
+                json.writeAtomic(path(sessionId), doc);
+                return;
+            }
+        }
+        doc.items.add(span);
+        json.writeAtomic(path(sessionId), doc);
+    }
+
     public synchronized void deleteBySessionId(String sessionId) {
         try {
             Files.deleteIfExists(path(sessionId));

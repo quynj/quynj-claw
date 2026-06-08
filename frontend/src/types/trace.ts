@@ -3,7 +3,7 @@ export interface TraceSpan {
   sessionId: string
   parentSpanId?: string
   name: string
-  spanType: 'agent' | 'llm' | 'tool' | 'memory' | 'retriever' | 'workflow' | 'system'
+  spanType: 'agent' | 'llm' | 'tool' | 'memory' | 'retriever' | 'workflow' | 'system' | 'message'
   status: 'running' | 'success' | 'error' | 'cancelled'
   input?: unknown
   output?: unknown

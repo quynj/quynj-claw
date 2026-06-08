@@ -22,6 +22,8 @@ export const useRuntimeStore = defineStore('runtime', () => {
     eventSource.value = subscribeSessionEvents(sessionId, {
       'message.created': ({ message }) => messageStore.upsert(message, sessionId),
       'message.delta': ({ message, last }) => messageStore.mergeDelta(message, Boolean(last), sessionId),
+      'trace.created': ({ trace }) => upsertTrace(trace, sessionId),
+      'trace.updated': ({ trace }) => upsertTrace(trace, sessionId),
       'session.updated': ({ session }) => {
         if (sessionStore.activeSessionId !== session.id) return
         sessionStore.replaceSession(session)
@@ -37,6 +39,16 @@ export const useRuntimeStore = defineStore('runtime', () => {
     const loaded = await listTraces(sessionId)
     if (useSessionStore().activeSessionId !== sessionId) return
     traces.value = loaded
+  }
+
+  function upsertTrace(trace: TraceSpan, sessionId: string) {
+    if (!trace || useSessionStore().activeSessionId !== sessionId) return
+    const index = traces.value.findIndex((item) => item.id === trace.id)
+    if (index >= 0) {
+      traces.value[index] = trace
+    } else {
+      traces.value.push(trace)
+    }
   }
 
   function close() {

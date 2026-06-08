@@ -714,6 +714,102 @@ h3 {
   gap: 8px;
 }
 
+.trace-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trace-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 58px;
+  padding: 9px 10px;
+  border: 1px solid #d6ddd4;
+  border-radius: 8px;
+  background: #fbfcf8;
+  color: #17201b;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.trace-row.active {
+  border-color: #255f4f;
+  background: #e7f0eb;
+}
+
+.trace-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 8px;
+  background: #eef2ec;
+  color: #657568;
+}
+
+.trace-row.running .trace-icon {
+  color: #a35412;
+}
+
+.trace-row.success .trace-icon {
+  color: #25735d;
+}
+
+.trace-row.error .trace-icon {
+  color: #bd3d38;
+}
+
+.trace-row.cancelled .trace-icon {
+  color: #8a6c2d;
+}
+
+.trace-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.trace-main strong,
+.trace-main small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trace-main strong {
+  font-size: 13px;
+}
+
+.trace-main small,
+.trace-duration {
+  color: #657568;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.trace-duration {
+  justify-self: end;
+}
+
+.trace-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
 .tool-block {
   margin-top: 10px;
 }

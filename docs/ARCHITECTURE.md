@@ -8,7 +8,7 @@ Base package: `com.github.quynj.quynjclaw`
   - `SessionController`: session CRUD and summary endpoint.
   - `ChatController`: send message endpoint.
   - `MessageController`: list/find UI message projections.
-  - `TraceController`: trace list/find placeholders.
+  - `TraceController`: trace list/find endpoints.
   - `SseController`: session event stream.
   - `GlobalExceptionHandler`: unified `Result` error responses.
 - `application`
@@ -17,12 +17,13 @@ Base package: `com.github.quynj.quynjclaw`
   - `MessageProjectionService`: UI message projection access.
   - `SummaryService`: summary access.
   - `RealtimeEventService`: per-session Spring `SseEmitter` registry.
+  - `TraceService`: records console-level runtime trace spans and publishes trace SSE events.
 - `agentscope`
   - `AgentFactory`: builds a fresh `ReActAgent` per request.
   - `AgentMemoryFactory`: creates `AutoContextMemory`, with `InMemoryMemory` fallback.
   - `AgentSessionStore`: wraps AgentScope `JsonSession`.
   - `AgentScopeMessageMapper`: maps frontend DTOs to/from AgentScope `Msg`.
-  - `AgentScopeTraceMapper`: placeholder mapper.
+  - `AgentScopeTraceMapper`: reserved mapper for future AgentScope telemetry span conversion.
 - `store`
   - `LocalSessionStore`: `sessions.json`.
   - `LocalMessageStore`: `messages/{sessionId}.json`.
@@ -40,19 +41,20 @@ Base package: `com.github.quynj.quynjclaw`
 1. `ConversationService.get(sessionId)` validates the UI session exists.
 2. `AgentScopeMessageMapper.toUserProjection(...)` creates a UI-only user message.
 3. `MessageProjectionService.append(...)` persists that user message to UI JSON.
-4. `ConversationService.markRunning(...)` updates UI session status.
-5. `RealtimeEventService.publishSessionUpdated(...)` sends SSE.
-6. `AgentFactory.createAgent(session)` creates a fresh `ReActAgent`.
-7. `AgentFactory` registers built-in Java tools into an AgentScope `Toolkit`.
-8. `AgentFactory` loads project-local skills from `.agents/skills` into an AgentScope `SkillBox`.
-9. `AgentSessionStore.loadIfExists(agent, session.agentscopeSessionId)` loads only this AgentScope session.
-10. Runtime delegates execution to AgentScope Java:
+4. `TraceService` records a root chat-request span and console-level runtime spans such as message persistence, AgentScope agent creation, session load/save, blocking call, stream call, stream events, errors, and cancellation.
+5. `ConversationService.markRunning(...)` updates UI session status.
+6. `RealtimeEventService.publishSessionUpdated(...)` sends SSE.
+7. `AgentFactory.createAgent(session)` creates a fresh `ReActAgent`.
+8. `AgentFactory` registers built-in Java tools into an AgentScope `Toolkit`.
+9. `AgentFactory` loads project-local skills from `.agents/skills` into an AgentScope `SkillBox`.
+10. `AgentSessionStore.loadIfExists(agent, session.agentscopeSessionId)` loads only this AgentScope session.
+11. Runtime delegates execution to AgentScope Java:
     - non-streaming requests use `agent.call(userMsg).block()`.
     - streaming requests use `agent.stream(userMsg, StreamOptions...)`, publish `message.delta`, and persist completed messages after the stream finishes.
-11. `AgentSessionStore.save(agent, session.agentscopeSessionId)` saves only this AgentScope session.
-12. The AgentScope `Msg` is mapped to an assistant UI projection.
-13. Message/session/summary stores are updated.
-14. SSE emits `message.created` and `session.updated`.
+12. `AgentSessionStore.save(agent, session.agentscopeSessionId)` saves only this AgentScope session.
+13. The AgentScope `Msg` is mapped to an assistant UI projection.
+14. Message/session/summary/trace stores are updated.
+15. SSE emits `message.created`, `session.updated`, `trace.created`, and `trace.updated`.
 
 On runtime exceptions, the service appends an error block message, marks the session `error`, emits `error`, emits the error message, and lets `GlobalExceptionHandler` return a unified error response.
 
@@ -174,7 +176,7 @@ SSE event names:
 
 - `message.created`
 - `message.delta`
+- `trace.created`
+- `trace.updated`
 - `session.updated`
 - `error`
-
-`trace.created` is not implemented yet.

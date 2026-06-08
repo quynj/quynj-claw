@@ -47,7 +47,9 @@ Frontend build warning:
 - Session summary endpoint.
 - Message list and send endpoints.
 - Message lookup by scanning message JSON files.
-- Trace list and lookup endpoints with currently empty trace documents.
+- Trace list and lookup endpoints backed by local trace JSON.
+- Console-level runtime trace recording for chat request roots, user-message persistence, AgentScope agent creation, AgentScope session load/save, blocking/stream calls, stream events, errors, and cancellation.
+- `trace.created` and `trace.updated` SSE events.
 - SSE subscription per session.
 - Unified `Result` response wrapper.
 - Global exception handler.
@@ -94,7 +96,7 @@ Frontend build warning:
 - Right data panel:
   - Summary tab
   - Message detail tab
-  - Trace tab
+  - Trace tab with timeline rows, status icons, duration, and selected-span JSON details
 - Session switching loads messages, summary, traces, and opens a new SSE connection.
 
 ## Current Configuration
@@ -123,7 +125,7 @@ Note: the original requested sample used DashScope and `DASHSCOPE_API_KEY`. The 
 - `SummaryService` exists, and runtime summary updates currently mirror `LocalSessionStore` through `ConversationService.markDone(...)` / `markError(...)`.
 - No token accounting is implemented yet; token fields remain zero.
 - Chat avatars are frontend-only presentation state. They are not persisted in backend UI JSON and are not part of AgentScope inference state.
-- Trace integration is a placeholder. Trace endpoints return data from local trace JSON, but AgentScope telemetry spans are not mapped/appended.
+- Trace integration records console-level runtime spans. AgentScope official telemetry/OpenTelemetry spans are not mapped/appended yet.
 - Streaming is implemented as AgentScope event projection with `message.delta`; token-level incremental text streaming is not implemented because runtime uses `incremental(false)`.
 - Tool rendering components and basic `tool_use` / `tool_result` content block mapping are implemented, but provider-specific edge cases may still need refinement.
 - `temperature` is stored on `ChatSessionDTO` but is not currently applied to model creation.

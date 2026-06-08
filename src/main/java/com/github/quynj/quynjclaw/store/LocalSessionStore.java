@@ -130,6 +130,15 @@ public class LocalSessionStore {
         return session;
     }
 
+    public synchronized ChatSessionDTO incrementTraceCount(String sessionId) {
+        Document doc = read();
+        ChatSessionDTO session = findMutable(doc, sessionId);
+        session.traceCount = Math.max(session.traceCount, 0) + 1;
+        session.updatedAt = LocalDateTime.now();
+        write(doc);
+        return session;
+    }
+
     public synchronized void delete(String sessionId) {
         Document doc = read();
         doc.items.removeIf(item -> Objects.equals(item.id, sessionId));

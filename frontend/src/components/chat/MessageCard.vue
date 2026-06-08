@@ -41,7 +41,7 @@ const props = defineProps<{
 const imageBlocks = computed(() => props.message.content.filter((block): block is ImageBlock => block.type === 'image'))
 const nonImageBlocks = computed(() => props.message.content.filter((block) => block.type !== 'image'))
 const displayName = computed(() => {
-  if (props.message.role === 'user') return 'You'
+  if (props.message.role === 'user') return 'you'
   if (props.message.role === 'assistant') return props.message.name || props.agentName || 'Sunday'
   return props.message.name || props.message.role
 })

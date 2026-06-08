@@ -120,6 +120,7 @@ Runtime call:
 - `src/main/java/com/github/quynj/quynjclaw/application/AgentScopeRuntimeService.java`
 - Calls `loadIfExists` before `agent.call(...)`.
 - Calls `save` after successful completion.
+- Records console-level trace spans through `TraceService`; these are UI projections only and do not replace AgentScope telemetry.
 
 ## How To Verify Session Isolation
 

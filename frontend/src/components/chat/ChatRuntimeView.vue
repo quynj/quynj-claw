@@ -5,7 +5,7 @@
         <p class="eyebrow">{{ sessionStore.activeSession?.agentName || 'Sunday' }}</p>
         <h2>{{ sessionStore.activeSession?.title || 'New Chat' }}</h2>
       </div>
-      <el-tag effect="dark">{{ sessionStore.activeSession?.modelName || 'model' }}</el-tag>
+      <el-tag effect="light" type="info">{{ sessionStore.activeSession?.modelName || 'model' }}</el-tag>
     </header>
     <div ref="feedRef" class="message-feed">
       <el-empty v-if="messageStore.messages.length === 0" description="No messages yet" />
