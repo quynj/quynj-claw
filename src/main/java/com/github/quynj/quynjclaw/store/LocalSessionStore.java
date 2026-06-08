@@ -108,6 +108,18 @@ public class LocalSessionStore {
         return session;
     }
 
+    public synchronized ChatSessionDTO updateTitle(String sessionId, String title) {
+        Document doc = read();
+        ChatSessionDTO session = doc.items.stream()
+                .filter(item -> Objects.equals(item.id, sessionId) && item.deletedAt == null)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + sessionId));
+        session.title = title;
+        session.updatedAt = LocalDateTime.now();
+        write(doc);
+        return session;
+    }
+
     public synchronized ChatSessionDTO updateStatus(String sessionId, String status) {
         Document doc = read();
         ChatSessionDTO session = findMutable(doc, sessionId);

@@ -17,13 +17,17 @@ public class ConversationService {
     private final LocalMessageStore messageStore;
     private final LocalSummaryStore summaryStore;
     private final LocalTraceStore traceStore;
+    private final SessionTitleGenerator titleGenerator;
+    private static final String DEFAULT_TITLE = "New Chat";
 
     public ConversationService(LocalSessionStore sessionStore, LocalMessageStore messageStore,
-                               LocalSummaryStore summaryStore, LocalTraceStore traceStore) {
+                               LocalSummaryStore summaryStore, LocalTraceStore traceStore,
+                               SessionTitleGenerator titleGenerator) {
         this.sessionStore = sessionStore;
         this.messageStore = messageStore;
         this.summaryStore = summaryStore;
         this.traceStore = traceStore;
+        this.titleGenerator = titleGenerator;
     }
 
     public PageResult<ChatSessionDTO> list(String keyword, String status, int page, int pageSize) {
@@ -76,6 +80,16 @@ public class ConversationService {
     public ChatSessionDTO markStopped(String sessionId, AgentMessageDTO message, long durationMs, int messageCountDelta) {
         ChatSessionDTO session = sessionStore.updateAfterMessage(sessionId, message, durationMs, messageCountDelta, "stopped");
         summaryStore.updateAfterSession(session);
+        return session;
+    }
+
+    public ChatSessionDTO updateTitleIfNeeded(String sessionId, AgentMessageDTO userMessage) {
+        ChatSessionDTO session = sessionStore.get(sessionId);
+        if (DEFAULT_TITLE.equals(session.title)) {
+            String newTitle = titleGenerator.generateFromUserMessage(userMessage);
+            session = sessionStore.updateTitle(sessionId, newTitle);
+            summaryStore.updateAfterSession(session);
+        }
         return session;
     }
 }

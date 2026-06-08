@@ -57,6 +57,10 @@ public class AgentScopeRuntimeService {
         try {
             AgentMessageDTO userProjection = messageMapper.toUserProjection(sessionId, request);
             messageProjectionService.append(sessionId, userProjection);
+            ChatSessionDTO titleUpdated = conversationService.updateTitleIfNeeded(sessionId, userProjection);
+            if (titleUpdated != null) {
+                realtimeEventService.publishSessionUpdated(sessionId, titleUpdated);
+            }
             userAppended = true;
             traceService.recordSuccess(sessionId, rootSpan.id, "Persist user message", "message",
                     Map.of("messageId", userProjection.id), Map.of("role", userProjection.role), null);
